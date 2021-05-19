@@ -24,8 +24,11 @@ func email() string {
 }
 
 func insertData(ctx context.Context, db *sql.DB) {
+	buf := bytes.NewBuffer(nil)
+
 	doInsert := func() (int64, error) {
-		buf := bytes.NewBuffer(nil)
+		defer buf.Reset()
+
 		buf.WriteString("INSERT INTO customer (customer_id, email) VALUES ")
 
 		binds := make([]interface{}, 0, *batchSize*2)
