@@ -4,12 +4,14 @@ data inserter tool for vtadmin reshard demo
 
 ## Usage:
 
+First, build this with `go build`.
+
 In the local example (`vitess.io/vitess/examples/local`):
 * run scripts `./101_initial_cluster.sh` up through `./302_new_shards.sh`
 * in a second pane, run `./scripts/vtadmin-up.sh`, which will spawn `vtadmin-web` running on `localhost:3000` in your browser.
 * navigate to `http://localhost:3000/workflows`, and you should see no workflows running.
 * in a third pane, run this tool, with whichever batch-size/threads/sleep-interval params you wish.
-    * for example, i was using `./main.bin -threads 16 -batch_size 500 -sleep 100ms`.
+    * for example, i was using `./vtadmin-demo-insert-data -threads 16 -batch_size 500 -sleep 100ms`.
 * back in your first terminal pane, run `./303_reshard.sh`. this starts the workflow.
 * back in your browser, you should see a new workflow, called `cust2cust`. if you click on it you'll see 2 streams, both in Copy phase. Depending on how long you were running the data-inserter, they might be in Copy phase for a long time
 * eventually, you will see those streams transition (live!) to `Running` phase. now you can run `VDiff`:
