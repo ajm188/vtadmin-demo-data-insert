@@ -76,6 +76,12 @@ func insertData(ctx context.Context, db *sql.DB) {
 			return
 		default:
 			rowsAffected, err = doInsert()
+			switch err {
+			case nil:
+				Stats.RowsInserted.Inc(int(rowsAffected))
+			default:
+				Stats.Errors.Inc(1)
+			}
 		}
 
 		delay := *sleep + 0 // TODO: add jitter

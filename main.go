@@ -21,7 +21,9 @@ var (
 	dsn       = flag.String("dsn", "vt_app@tcp(localhost:15306)/customer", "Full DSN spec: `[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]`")
 	threads   = flag.Int("threads", 4, "")
 	batchSize = flag.Int("batch_size", 100, "")
-	sleep     = flag.Duration("sleep-interval", time.Millisecond*10, "sleep `sleep-interval` +/- 0.1*`sleep-interval` between insert batches")
+	sleep     = flag.Duration("sleep_interval", time.Millisecond*10, "sleep `sleep-interval` +/- 0.1*`sleep-interval` between insert batches")
+
+	statsReportRate = flag.Duration("stats_report_rate", time.Second, "")
 
 	dictionary = flag.String("dictionary", "/usr/share/dict/words", "")
 	words      []string
@@ -73,6 +75,22 @@ func main() {
 	if *debug {
 		log.Printf("spawning %d insert threads", *threads)
 	}
+
+	Stats.startTime = time.Now()
+
+	go func() {
+		ticker := time.NewTicker(*statsReportRate)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				ReportStats()
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
 
 	for i := 0; i < *threads; i++ {
 		go func() {
